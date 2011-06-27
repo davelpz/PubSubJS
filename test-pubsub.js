@@ -193,6 +193,15 @@
             var result = PubSub.unsubscribe( token );
             assertEquals( token, result );        
         },
+        
+        "test unsubscribe method with fuction argument should return true when succesful" : function(){
+            var func = function(){};
+            var message = getUniqueString();
+            var token = PubSub.subscribe( message, func);
+
+            var result = PubSub.unsubscribe( func );
+            assertEquals( true, result );        
+        },
 
         "test unsubscribe method should return false when unsuccesful" : function(){
 
@@ -210,6 +219,27 @@
             PubSub.unsubscribe( token );
             // unsubscribe again
             assertFalse( PubSub.unsubscribe( token ) );        
+        },
+        
+        "test unsubscribe method with function argument should return false when unsuccesful" : function(){
+
+            // first, let's try a completely unknown token
+            var unknownToken = 'my unknown token';
+            var result = PubSub.unsubscribe( unknownToken );
+            assertFalse( result );
+
+            // now let's try unsubscribing the same method twice
+            var func = function(){};
+            var message = getUniqueString();
+            PubSub.subscribe( message, func );
+            PubSub.subscribe( message, func );
+            PubSub.subscribe( message, func );
+
+            // unsubscribe once, this should remove all subscriptions for message
+            PubSub.unsubscribe( func );
+            
+            // unsubscribe again
+            assertFalse( PubSub.unsubscribe( func ) );        
         }
     });
 }(this));

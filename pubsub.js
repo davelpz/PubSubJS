@@ -142,20 +142,42 @@ var PubSub = {};
 
     /**
      *  PubSub.unsubscribe( token ) -> String | Boolean
-     *  - token (String): The token of the function to unsubscribe
-     *  Unsubscribes a specific subscriber from a specific message using the unique token
+     *  - token (String|Function): The token of the function to unsubscribe or func passed in on subscribe
+     *  Unsubscribes a specific subscriber from a specific message using the unique token 
+     *  or if using callback function as argument, it will remove all subscribers with that callback function
     **/
     p.unsubscribe = function( token ){
-        for ( var m in messages ){
-            if ( messages.hasOwnProperty( m ) ){
-                for ( var i = 0, j = messages[m].length; i < j; i++ ){
-                    if ( messages[m][i].token === token ){
-                        messages[m].splice( i, 1 );
-                        return token;
+    	var rtn_val = false;
+    	
+    	//if token is a function, remove all subscriptions with that callback function
+        if (Object.prototype.toString.call(token) === '[object Function]')
+        {
+            for ( var m in messages ){
+                if ( messages.hasOwnProperty( m ) ){
+                    for ( var i = messages[m].length-1 ; i >= 0; i-- ){
+                        if ( messages[m][i].func === token ){
+                            messages[m].splice( i, 1 );
+                            rtn_val=true;
+                        }
+                    }
+                }
+            }
+            return rtn_val;
+        }
+        //else just find subscription with the uniq string token and delete it 
+        else {
+            for ( var m in messages ){
+                if ( messages.hasOwnProperty( m ) ){
+                    for ( var i = 0, j = messages[m].length; i < j; i++ ){
+                        if ( messages[m][i].token === token ){
+                            messages[m].splice( i, 1 );
+                            return token;
+                        }
                     }
                 }
             }
         }
+        
         return false;
     };
 }(PubSub));
